@@ -1,0 +1,8 @@
+python-dotenv
+numpy
+PyMuPDF
+langchain-openai
+langchain
+langchain-core
+langchain-community
+openai
