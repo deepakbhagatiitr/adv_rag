@@ -1,14 +1,14 @@
-# main Flask app file
 from flask import Flask, request, jsonify
 import jwt
 import datetime
 from functools import wraps
 from flask_cors import CORS
 from gemini import upload_pdf_and_create_db, answer_question
+
 import os
-
+from google.cloud import vision
 import traceback
-
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/deepak-bhagat/Downloads/iprc-456620-6454ff816526.json"
 
 app = Flask(__name__)
 CORS(app)
@@ -52,15 +52,15 @@ def login():
 def protected():
     return jsonify({'message': f'Hello {request.user}, you accessed a protected route!'})
 
-
-
-UPLOAD_FOLDER = './uploads'
+UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 import fitz
 
+vision_client = vision.ImageAnnotatorClient()
+
 @app.route('/upload', methods=['POST'])
-def upload_pdf():
+def upload_pdf_or_image():
     try:
         if 'file' not in request.files:
             return jsonify({"error": "No file uploaded"}), 400
@@ -73,25 +73,46 @@ def upload_pdf():
         filepath = os.path.join(UPLOAD_FOLDER, file.filename)
         file.save(filepath)
 
-        # ✅ Extract text from PDF
-        pdf_text = extract_text_from_pdf(filepath)
+        # Check file type by extension
+        ext = file.filename.lower().split('.')[-1]
 
-        # ✅ Pass extracted text to gemini logic
-        msg, success = upload_pdf_and_create_db(pdf_text)
+        if ext in ['pdf']:
+            # ✅ Extract text from PDF
+            extracted_text = extract_text_from_pdf(filepath)
+
+        elif ext in ['jpg', 'jpeg', 'png']:
+            # ✅ Extract text from image using Vision API
+            with open(filepath, "rb") as image_file:
+                content = image_file.read()
+            image = vision.Image(content=content)
+            response = vision_client.text_detection(image=image)
+            texts = response.text_annotations
+
+            if response.error.message:
+                raise Exception(response.error.message)
+
+            if texts:
+                extracted_text = texts[0].description
+            else:
+                extracted_text = ""
+                return jsonify({"error": "No text found in image"}), 400
+
+        else:
+            return jsonify({"error": "Unsupported file type"}), 400
+
+        # ✅ Send extracted text for further processing
+        msg, success = upload_pdf_and_create_db(extracted_text)
         print(msg)
 
         if not success:
-            # Optional: Add retry or error dialog on frontend
-            print("PDF failed to process, please try again.")
+            print("File failed to process, please try again.")
 
-
-        return jsonify({"message": success}), 200
+        return jsonify({"message": msg, "success": success}), 200
 
     except Exception as e:
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
-# ✅ PDF Text Extraction Function
 import pdfplumber
 
 def extract_text_from_pdf(pdf_file):
@@ -101,17 +122,37 @@ def extract_text_from_pdf(pdf_file):
             text += page.extract_text() + "\n"
         return text
 
-# text = extract_text_from_pdf('path_to_pdf.pdf')
-# print(text)
-
 
 
 @app.route('/', methods=['POST'])
 def ask():
     data = request.get_json()
     question = data.get('question', '')
-    answer = answer_question(question)
-    return jsonify({'answer': answer})
+
+    # Get response from the answering function
+    response = answer_question(question)
+    print(f"Response before split: {response}")
+
+    # Split into lines to parse
+    lines = response.strip().split("\n")
+
+    # Extract answer
+    response_text = ""
+    confidence_score = "Confidence: 0"
+
+    for line in lines:
+        if line.startswith("Response:"):
+            response_text = line.replace("Response:", "").strip()
+        elif line.startswith("Confidence:"):
+            confidence_score = line.strip()
+
+    try:
+        confidence = int(confidence_score.replace("Confidence:", "").replace("%", "").strip())
+    except ValueError:
+        print(f"Error converting confidence: {confidence_score}")
+        confidence = 0
+
+    return jsonify({'answer': response_text, 'confidence': confidence})
 
 
 if __name__ == '__main__':

@@ -10,9 +10,11 @@ const ChatDashboard = ({ onLogout }) => {
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState('');
     const [pdfUploaded, setPdfUploaded] = useState(false);
+    const [confidence, setConfidence] = useState(null); // Store confidence score
     const bottomRef = useRef(null);
     const token = localStorage.getItem('token');
 
+    // Handle sending message
     const handleSend = async (e) => {
         e.preventDefault();
 
@@ -30,13 +32,16 @@ const ChatDashboard = ({ onLogout }) => {
 
         try {
             const response = await axios.post(
-                'http://localhost:5000/',  // Make sure this is the correct endpoint for sending questions
+                'http://localhost:5000/',  // Correct backend endpoint for sending questions
                 { question: message },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
             if (response.data.answer) {
-                setMessages(prev => [...prev, { text: response.data.answer, user: false }]);
+                const currentConfidence = response.data.confidence || null;
+                setConfidence(currentConfidence); // Set confidence score
+                console.log('Confidence:', currentConfidence); // Log confidence score
+                setMessages(prev => [...prev, { text: response.data.answer, user: false, confidence: currentConfidence }]);
             } else {
                 setMessages(prev => [...prev, { text: 'Failed to get answer from the backend.', user: false }]);
             }
@@ -47,13 +52,14 @@ const ChatDashboard = ({ onLogout }) => {
         setMessage('');
     };
 
+    // Handle file upload
     const handleFileUpload = async (file) => {
         const formData = new FormData();
         formData.append('file', file); // Append the file to FormData
 
         try {
             const response = await axios.post(
-                'http://localhost:5000/upload',
+                'http://localhost:5000/upload',  // Correct backend endpoint for file upload
                 formData,
                 { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } }
             );
@@ -69,7 +75,7 @@ const ChatDashboard = ({ onLogout }) => {
         }
     };
 
-
+    // Scroll to bottom whenever messages change
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
@@ -96,7 +102,12 @@ const ChatDashboard = ({ onLogout }) => {
                     <ScrollToBottom className="flex-1">
                         {messages.map((msg, index) => (
                             <div key={index} className={`mb-4 flex ${msg.user ? 'justify-end' : 'justify-start'}`}>
-                                <span className={`inline-block max-w-lg break-words px-4 py-2 rounded-lg ${msg.user ? 'bg-blue-100 text-right' : 'bg-gray-100 text-left'}`}>
+                                <span
+                                    className={`inline-block max-w-lg break-words px-4 py-2 rounded-lg ${msg.user ? 'bg-blue-100 text-right' : 'bg-transparent text-left'}`}
+                                    style={{
+                                        color: msg.confidence !== null && msg.confidence < 70 ? 'red' : 'inherit', // Yellow for low confidence
+                                    }}
+                                >
                                     {msg.text}
                                 </span>
                             </div>
@@ -123,6 +134,13 @@ const ChatDashboard = ({ onLogout }) => {
                         <FiSend className="text-xl" />
                     </button>
                 </form>
+
+                {/* Display confidence score */}
+                {confidence !== null && confidence >= 70 && (
+                    <div className="p-4 text-center text-sm text-gray-500">
+                        Confidence: {confidence}%
+                    </div>
+                )}
             </div>
         </div>
     );
