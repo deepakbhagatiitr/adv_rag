@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MdFace } from "react-icons/md";
 import { FiSend } from "react-icons/fi";
 import ScrollToBottom from 'react-scroll-to-bottom';
 import axios from 'axios';
-import UploadForm from './components/UploadForm'; // Ensure this component is implemented correctly
+import UploadForm from './components/UploadForm';
 import './index.css';
 
 const ChatDashboard = ({ onLogout }) => {
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState('');
     const [pdfUploaded, setPdfUploaded] = useState(false);
-    const [confidence, setConfidence] = useState(null); // Store confidence score
+    const [confidence, setConfidence] = useState(null);
     const bottomRef = useRef(null);
     const token = localStorage.getItem('token');
 
@@ -32,15 +31,15 @@ const ChatDashboard = ({ onLogout }) => {
 
         try {
             const response = await axios.post(
-                'http://localhost:5000/',  // Correct backend endpoint for sending questions
+                'http://localhost:5000/',
                 { question: message },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
             if (response.data.answer) {
                 const currentConfidence = response.data.confidence || null;
-                setConfidence(currentConfidence); // Set confidence score
-                console.log('Confidence:', currentConfidence); // Log confidence score
+                setConfidence(currentConfidence);
+                console.log('Confidence:', currentConfidence);
                 setMessages(prev => [...prev, { text: response.data.answer, user: false, confidence: currentConfidence }]);
             } else {
                 setMessages(prev => [...prev, { text: 'Failed to get answer from the backend.', user: false }]);
@@ -55,11 +54,11 @@ const ChatDashboard = ({ onLogout }) => {
     // Handle file upload
     const handleFileUpload = async (file) => {
         const formData = new FormData();
-        formData.append('file', file); // Append the file to FormData
+        formData.append('file', file);
 
         try {
             const response = await axios.post(
-                'http://localhost:5000/upload',  // Correct backend endpoint for file upload
+                'http://localhost:5000/upload',
                 formData,
                 { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } }
             );
@@ -75,7 +74,6 @@ const ChatDashboard = ({ onLogout }) => {
         }
     };
 
-    // Scroll to bottom whenever messages change
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
@@ -87,7 +85,6 @@ const ChatDashboard = ({ onLogout }) => {
                 <header className="flex items-center justify-between p-4 text-black border-b">
                     <div className="text-xl font-semibold">MasterBot</div>
                     <div className="flex items-center gap-4">
-                        {/* <MdFace className="text-2xl" /> */}
                         <button
                             onClick={onLogout}
                             className="px-3 py-1 text-sm text-white bg-red-500 rounded-md hover:bg-red-600"
@@ -120,7 +117,6 @@ const ChatDashboard = ({ onLogout }) => {
                         Confidence: {confidence}%
                     </div>
                 )}
-                {/* Input + Upload */}
                 <form className="flex p-4 space-x-2 border-t" onSubmit={handleSend}>
                     <input
                         type="text"
@@ -139,7 +135,6 @@ const ChatDashboard = ({ onLogout }) => {
                     </button>
                 </form>
 
-                {/* Display confidence score */}
 
             </div>
         </div>

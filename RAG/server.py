@@ -1,20 +1,19 @@
+import fitz
 from flask import Flask, request, jsonify
 import jwt
 import datetime
 from functools import wraps
 from flask_cors import CORS
 from gemini import upload_pdf_and_create_db, answer_question
-
 import os
 from google.cloud import vision
 import traceback
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/deepak-bhagat/Downloads/iprc-456620-6454ff816526.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/app/credentials/iprc-456620-6454ff816526.json"
 
 app = Flask(__name__)
 CORS(app)
 SECRET_KEY = 'deepakbhagat'
 
-# ---------------- JWT Logic ----------------
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -35,7 +34,6 @@ def token_required(f):
         return f(*args, **kwargs)
     return decorated
 
-# ---------------- Routes ----------------
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
@@ -55,8 +53,6 @@ def protected():
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-import fitz
-
 vision_client = vision.ImageAnnotatorClient()
 
 @app.route('/upload', methods=['POST'])
@@ -73,11 +69,9 @@ def upload_pdf_or_image():
         filepath = os.path.join(UPLOAD_FOLDER, file.filename)
         file.save(filepath)
 
-        # Check file type by extension
         ext = file.filename.lower().split('.')[-1]
 
         if ext in ['pdf']:
-            # ✅ Extract text from PDF
             extracted_text = extract_text_from_pdf(filepath)
 
         elif ext in ['jpg', 'jpeg', 'png']:
@@ -100,7 +94,6 @@ def upload_pdf_or_image():
         else:
             return jsonify({"error": "Unsupported file type"}), 400
 
-        # ✅ Send extracted text for further processing
         msg, success = upload_pdf_and_create_db(extracted_text)
         print(msg)
 
@@ -129,14 +122,11 @@ def ask():
     data = request.get_json()
     question = data.get('question', '')
 
-    # Get response from the answering function
     response = answer_question(question)
     print(f"Response before split: {response}")
 
-    # Split into lines to parse
     lines = response.strip().split("\n")
 
-    # Extract answer
     response_text = ""
     confidence_score = "Confidence: 0"
 
@@ -159,4 +149,5 @@ def ask():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
+
