@@ -79,8 +79,8 @@ The frontend will be available at `http://localhost:3000` by default, and the ba
 **Request**:
 ```json
 {
-  "email": "user@example.com",
-  "password": "deepak"
+  "email": "email",
+  "password": "password"
 }
 ```
 
