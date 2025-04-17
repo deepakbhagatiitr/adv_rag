@@ -145,6 +145,9 @@ def ask():
             response_text = line.replace("Response:", "").strip()
         elif line.startswith("Confidence:"):
             confidence_score = line.strip()
+    
+    print(f"Response after split: {response_text}")
+    print(f"Confidence score: {confidence_score}")
 
     try:
         confidence = int(confidence_score.replace("Confidence:", "").replace("%", "").strip())

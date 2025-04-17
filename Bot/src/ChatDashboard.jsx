@@ -87,7 +87,7 @@ const ChatDashboard = ({ onLogout }) => {
                 <header className="flex items-center justify-between p-4 text-black border-b">
                     <div className="text-xl font-semibold">MasterBot</div>
                     <div className="flex items-center gap-4">
-                        <MdFace className="text-2xl" />
+                        {/* <MdFace className="text-2xl" /> */}
                         <button
                             onClick={onLogout}
                             className="px-3 py-1 text-sm text-white bg-red-500 rounded-md hover:bg-red-600"
@@ -115,7 +115,11 @@ const ChatDashboard = ({ onLogout }) => {
                         <div ref={bottomRef} />
                     </ScrollToBottom>
                 </div>
-
+                {confidence !== null && confidence >= 70 && (
+                    <div className="p-4 text-center text-sm text-gray-500">
+                        Confidence: {confidence}%
+                    </div>
+                )}
                 {/* Input + Upload */}
                 <form className="flex p-4 space-x-2 border-t" onSubmit={handleSend}>
                     <input
@@ -136,11 +140,7 @@ const ChatDashboard = ({ onLogout }) => {
                 </form>
 
                 {/* Display confidence score */}
-                {confidence !== null && confidence >= 70 && (
-                    <div className="p-4 text-center text-sm text-gray-500">
-                        Confidence: {confidence}%
-                    </div>
-                )}
+
             </div>
         </div>
     );

@@ -83,20 +83,6 @@ class RetrieveAndAnswer:
             return "Error processing request, try again.", 0
 
     def calculate_confidence(self, response_text, question):
-        token_count = len(response_text.split())
-        base_score = 0
-
-        if token_count > 150:
-            base_score = 90
-        elif token_count > 100:
-            base_score = 80
-        elif token_count > 60:
-            base_score = 70
-        elif token_count > 30:
-            base_score = 60
-        else:
-            base_score = 40
-
         import re
         from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 
@@ -109,13 +95,43 @@ class RetrieveAndAnswer:
         keyword_overlap = question_words.intersection(answer_words)
 
         keyword_score = len(keyword_overlap) / max(len(question_words), 1)
-        keyword_boost = min(int(keyword_score * 20), 10)
-        ending_bonus = 5 if response_text.strip().endswith('.') else 0
 
-        confidence = base_score + keyword_boost + ending_bonus
-        confidence = min(confidence, 100)
+        # Step 1: Calculate keyword match boost (0–70)
+        keyword_boost = int(keyword_score * 70)
 
-        return confidence
+        # Step 2: Smarter check for irrelevant or fallback responses
+        irrelevant_phrases = [
+            "not contain information",
+            "not contain any information",
+            "i cannot answer",
+            "no information available",
+            "context does not mention",
+            "cannot find",
+            "i don’t know",
+            "i do not know"
+        ]
+
+        # Normalize and split into clean sentences
+        response_lower = response_text.strip().lower()
+        response_sentences = [s.strip() for s in re.split(r'[.!?]', response_lower) if s.strip()]
+
+        contains_irrelevant = any(
+            any(phrase in sentence for phrase in irrelevant_phrases)
+            for sentence in response_sentences
+        )
+
+        if keyword_score == 0 or contains_irrelevant and len(response_sentences) <= 2:
+            return 10  # Only penalize if mostly irrelevant or fallback content
+
+        # Step 3: Bonus for ending with punctuation
+        ending_bonus = 5 if response_text.strip().endswith(('.', '?')) else 0
+
+        # Final score
+        confidence = keyword_boost + ending_bonus
+        return max(min(confidence, 100), 0)
+
+
+
 
 
 # Upload PDF and create/update vector DB
