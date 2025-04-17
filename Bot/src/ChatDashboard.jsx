@@ -3,7 +3,7 @@ import { MdFace } from "react-icons/md";
 import { FiSend } from "react-icons/fi";
 import ScrollToBottom from 'react-scroll-to-bottom';
 import axios from 'axios';
-import UploadForm from './components/UploadForm';
+import UploadForm from './components/UploadForm'; // Ensure this component is implemented correctly
 import './index.css';
 
 const ChatDashboard = ({ onLogout }) => {
@@ -30,7 +30,7 @@ const ChatDashboard = ({ onLogout }) => {
 
         try {
             const response = await axios.post(
-                'http://localhost:5000/',
+                'http://localhost:5000/',  // Make sure this is the correct endpoint for sending questions
                 { question: message },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -49,13 +49,13 @@ const ChatDashboard = ({ onLogout }) => {
 
     const handleFileUpload = async (file) => {
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', file); // Append the file to FormData
 
         try {
             const response = await axios.post(
                 'http://localhost:5000/upload',
                 formData,
-                { headers: { Authorization: `Bearer ${token}` } }
+                { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } }
             );
 
             if (response.status === 200) {
@@ -68,6 +68,7 @@ const ChatDashboard = ({ onLogout }) => {
             setMessages(prev => [...prev, { text: 'Error uploading file.', user: false }]);
         }
     };
+
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -113,6 +114,7 @@ const ChatDashboard = ({ onLogout }) => {
                         placeholder="Type a message..."
                         className="flex-1 px-4 py-2 border border-gray-300 rounded-lg outline-none"
                     />
+                    {/* Pass file upload handler to UploadForm */}
                     <UploadForm onFileUpload={handleFileUpload} />
                     <button
                         type="submit"
