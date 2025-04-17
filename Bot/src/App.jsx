@@ -17,7 +17,7 @@ const App = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:5000/login', { email, password });
+      const response = await axios.post('https://rag-backend-463375822200.us-central1.run.app/login', { email, password });
       const token = response.data.token;
 
       if (token) {

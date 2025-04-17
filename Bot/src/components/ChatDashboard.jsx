@@ -31,7 +31,7 @@ const ChatDashboard = ({ onLogout }) => {
 
         try {
             const response = await axios.post(
-                'http://localhost:5000/',
+                'https://rag-backend-463375822200.us-central1.run.app/',
                 { question: message },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -58,7 +58,7 @@ const ChatDashboard = ({ onLogout }) => {
 
         try {
             const response = await axios.post(
-                'http://localhost:5000/upload',
+                'https://rag-backend-463375822200.us-central1.run.app/upload',
                 formData,
                 { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } }
             );
