@@ -1,259 +1,144 @@
-Thanks for sharing the repo link and clarifying the project structure. Based on this, here's an updated version of the `README.md`, taking into account the actual folder structure and your provided information:
+# **Adv_Rag - AI-Powered Document Q&A System**
 
----
+Adv_Rag is an advanced document processing and question-answering system built with various cutting-edge technologies, enabling users to upload PDF or image documents, process them, and ask questions based on the extracted content. The system uses a custom AI-powered backend, powered by Google's Gemini API, and integrates with popular Python libraries and cloud services.
 
-# **RAGGaze - Intelligent Question Answering System**
+## **Features**
+- **PDF and Image Upload**: Upload PDF or image files for text extraction using the Vision API and pdfplumber.
+- **Question Answering**: Use an advanced AI model (Gemini 2.0 Flash) to answer questions based on the content of the uploaded documents.
+- **JWT Authentication**: Secure the backend routes with JWT tokens, ensuring only authenticated users can access the system.
+- **Vector Storage**: Vectorize document text using FAISS for efficient search and retrieval of relevant document chunks.
+- **Smart Confidence Scoring**: Provide confidence scores along with the answers to indicate the model's certainty.
 
-RAGGaze is an AI-powered web application that enables users to upload PDF documents and ask questions about the content. It extracts text from the PDF documents using the Google Cloud Vision API, and answers queries using machine learning models.
+## **Technologies Used**
+- **Backend**: Python, Flask
+- **Frontend**: ReactJS, Tailwind CSS (via npm run dev)
+- **Text Extraction**: `pdfplumber` for PDF text extraction, Google Cloud Vision API for image-to-text extraction.
+- **Vector Database**: FAISS for efficient document search and retrieval.
+- **AI Model**: Google Gemini 2.0 Flash for natural language processing and question answering.
+- **Authentication**: JWT-based token system for user authentication.
 
-## **Table of Contents**
+## **Installation Guide**
 
-1. [Project Overview](#project-overview)
-2. [Technologies](#technologies)
-3. [Frontend Setup (React)](#frontend-setup-react)
-4. [Backend Setup (Flask)](#backend-setup-flask)
-5. [Running the Application](#running-the-application)
-6. [Docker Setup](#docker-setup)
-7. [Environment Variables](#environment-variables)
-8. [Dependencies](#dependencies)
-9. [Troubleshooting](#troubleshooting)
-10. [License](#license)
+### **Prerequisites**
+- **Python** 3.10 or +
+- **Node.js** and **npm** for running the frontend
+- **Google Cloud Account** for API keys and credentials
+- **Gemini API Key** for integrating the AI model
 
----
+### **Setup**
 
-## **Project Overview**
-
-RAGGaze is a full-stack web application where users can upload a PDF document, and then ask questions about its contents. The system uses Flask as the backend, React.js for the frontend, and integrates Google Cloud Vision API for extracting text from the PDFs. The intelligent question-answering model processes the query and returns relevant answers.
-
-### **Project Structure**
-```
-.
-├── RAG/                    # Backend - RAG (Flask)
-│   ├── app.py              # Main Flask app file
-│   ├── requirements.txt    # Python dependencies
-│   └── server.py           # Flask server for handling API requests
-│
-└── bot/                    # Frontend - React
-    ├── public/             # Static assets
-    ├── src/                # React components and pages
-    ├── package.json        # Frontend dependencies
-    └── .env                # Environment variables for frontend
-```
-
----
-
-## **Technologies**
-
-- **Frontend (React & Tailwind CSS)**:
-  - **React.js** for building the user interface.
-  - **Tailwind CSS** for utility-first CSS styling.
-  - **Axios** for making HTTP requests to the backend.
-
-- **Backend (Flask)**:
-  - **Flask** for handling HTTP requests and serving APIs.
-  - **Google Cloud Vision API** for text extraction from PDF files.
-  - **TensorFlow** for question-answering machine learning models.
-
-- **Docker**:
-  - Docker for containerizing the application for easy deployment.
-
----
-
-## **Frontend Setup (React)**
-
-### 1. **Clone the Repository**
-   Clone the repository to your local machine:
-   ```bash
-   git clone https://github.com/deepakbhagatiitr/adv_rag.git
-   cd adv_rag
-   ```
-
-### 2. **Install Dependencies**
-   Navigate to the `bot` directory and install the required packages:
-   ```bash
-   cd bot
-   npm install
-   ```
-
-### 3. **Run the React Development Server**
-   Start the React development server:
-   ```bash
-   npm start
-   ```
-   The frontend will be available at [http://localhost:3000](http://localhost:3000).
-
-### 4. **Configure Axios**
-   Make sure Axios is configured to communicate with your backend by setting the base URL:
-   ```js
-   axios.defaults.baseURL = "http://localhost:5000";  // Set to Flask backend URL
-   ```
-
----
-
-## **Backend Setup (Flask)**
-
-### 1. **Create a Virtual Environment**
-   Create and activate a Python virtual environment:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
-   ```
-
-### 2. **Install Dependencies**
-   Navigate to the `RAG` directory and install the Python dependencies:
-   ```bash
-   cd RAG
-   pip install -r requirements.txt
-   ```
-
-### 3. **Set Up Google Cloud Credentials**
-   Make sure you have the Google Cloud Vision API credentials. Download the credentials JSON file and set the environment variable:
-   ```bash
-   export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/credentials-file.json"
-   ```
-
-### 4. **Run the Flask Server**
-   Start the Flask server:
-   ```bash
-   python server.py
-   ```
-   The backend will be available at [http://localhost:5000](http://localhost:5000).
-
----
-
-## **Running the Application Locally**
-
-To run the full application locally:
-
-1. **Start the Backend (Flask)**:
-   Navigate to the `RAG` directory and run the Flask server:
-   ```bash
-   python server.py
-   ```
-
-2. **Start the Frontend (React)**:
-   Navigate to the `bot` directory and run the React app:
-   ```bash
-   npm start
-   ```
-
-This will make the backend available at [http://localhost:5000](http://localhost:5000) and the frontend at [http://localhost:3000](http://localhost:3000).
-
----
-
-## **Docker Setup**
-
-To deploy the application using Docker, follow these steps:
-
-### 1. **Build Docker Images**
-
-- **Backend (Flask)**:
-   In the root project directory, build the Docker image for the backend:
-   ```bash
-   docker build -t python-server ./RAG
-   ```
-
-- **Frontend (React)**:
-   Build the Docker image for the frontend:
-   ```bash
-   cd bot
-   docker build -t react-frontend .
-   ```
-
-### 2. **Run Backend with Docker**
-
-Mount the Google Cloud Vision credentials file and set the environment variable in Docker:
-
+#### 1. Clone the repository:
 ```bash
-docker run -p 5000:5000 \
-  -v /path/to/your/credentials/iprc-456620-6454ff816526.json:/app/credentials/iprc-456620-6454ff816526.json \
-  -e GOOGLE_APPLICATION_CREDENTIALS="/app/credentials/iprc-456620-6454ff816526.json" \
-  python-server
+git clone https://github.com/yourusername/Adv_Rag.git
+cd Adv_Rag
 ```
 
-### 3. **Run Frontend with Docker (Optional)**
-
-If you choose to containerize the frontend, run it in a similar manner:
+#### 2. Install the backend dependencies:
 ```bash
-docker run -p 3000:3000 react-frontend
+pip install -r requirements.txt
 ```
 
----
-
-## **Environment Variables**
-
-Make sure to set up the following environment variables:
-
-- **`GOOGLE_APPLICATION_CREDENTIALS`**: Path to your Google Cloud credentials JSON file.
-
-In the backend, you can specify this environment variable directly, as shown in the Docker setup:
+#### 3. Setup your environment variables:
+Create a `.env` file in the root of the project and add the following:
 ```bash
--e GOOGLE_APPLICATION_CREDENTIALS="/app/credentials/iprc-456620-6454ff816526.json"
+GEMINI_API_KEY=your_api_key_here
 ```
 
----
-
-## **Dependencies**
-
-### Backend (Flask)
-
-- **Flask**: A micro web framework for Python.
-- **google-cloud-vision**: Google Cloud Vision API client.
-- **pdfplumber**: Extracts content from PDF documents.
-- **FAISS**: Library for efficient similarity search.
-- **TensorFlow**: Deep learning framework for question-answering models.
-
-### Frontend (React)
-
-- **React**: JavaScript library for building user interfaces.
-- **Tailwind CSS**: A utility-first CSS framework for styling.
-- **Axios**: HTTP client for making API requests.
-
-To install the dependencies, run the following:
-
+#### 4. Set up the Google Cloud Vision credentials:
+- Download the service account credentials from your Google Cloud console.
+- Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to point to the path of your credentials file:
 ```bash
-pip install -r requirements.txt  # Backend
-npm install                     # Frontend
+export GOOGLE_APPLICATION_CREDENTIALS="path_to_your_credentials.json"
 ```
 
----
+#### 5. Install the frontend dependencies:
+```bash
+cd frontend
+npm install
+```
 
-## **Troubleshooting**
+#### 6. Run the backend server:
+In the backend directory, run:
+```bash
+python server.py
+```
 
-1. **CORS Issue (Cross-Origin Resource Sharing)**:
-   To fix CORS issues between React and Flask, make sure `flask-cors` is installed and configured in the backend:
-   ```bash
-   pip install flask-cors
-   ```
+#### 7. Run the frontend:
+In the frontend directory, run:
+```bash
+npm run dev
+```
 
-   In `server.py`, enable CORS for all routes:
-   ```python
-   from flask_cors import CORS
-   CORS(app)
-   ```
+The frontend will be available at `http://localhost:3000` by default, and the backend will be accessible at `http://localhost:5000`.
 
-2. **Google Cloud Vision API Credentials Not Found**:
-   Ensure that the `GOOGLE_APPLICATION_CREDENTIALS` variable points to the correct path of your Google Cloud credentials JSON file.
+## **API Endpoints**
 
-3. **Connection Reset (ERR_CONNECTION_RESET)**:
-   If the frontend works locally but not inside Docker, ensure the Flask server is bound to `0.0.0.0` (not just `localhost`):
-   ```python
-   app.run(host='0.0.0.0', port=5000)
-   ```
+### **1. /login [POST]**
+**Description**: Authenticate a user and return a JWT token.
 
-4. **Missing Modules**:
-   If you see errors related to missing modules, make sure to run:
-   ```bash
-   pip install -r requirements.txt  # For backend
-   npm install                     # For frontend
-   ```
+**Request**:
+```json
+{
+  "email": "user@example.com",
+  "password": "deepak"
+}
+```
 
----
+**Response**:
+```json
+{
+  "token": "your_jwt_token_here"
+}
+```
+
+### **2. /upload [POST]**
+**Description**: Upload a PDF or image file for text extraction and processing.
+
+**Request** (Form Data):
+- **file**: The PDF or image file to be uploaded.
+
+**Response**:
+```json
+{
+  "message": "PDF processed and vector DB updated.",
+  "success": true
+}
+```
+
+### **3. / [POST]**
+**Description**: Ask a question based on the uploaded document.
+
+**Request**:
+```json
+{
+  "question": "What is the main idea of the document?"
+}
+```
+
+**Response**:
+```json
+{
+  "answer": "The main idea of the document is...",
+  "confidence": 80
+}
+```
+
+## **How It Works**
+1. **Upload PDF/Image**: Users can upload PDF or image files, and the system will extract text from them using either `pdfplumber` (for PDFs) or Google Vision API (for images).
+   
+2. **Text Vectorization**: The extracted text is split into chunks and vectorized using FAISS for efficient retrieval.
+
+3. **Question Answering**: After processing, users can ask questions, and the system will generate relevant answers based on the extracted text using Google’s Gemini 2.0 Flash model.
+
+4. **Confidence Scoring**: The system returns answers with a confidence score, helping users gauge the reliability of the response.
+
+## **Additional Notes**
+- **Google Cloud Vision API**: This is required for image-to-text extraction. Be sure to configure your Google Cloud credentials correctly.
+- **JWT Authentication**: Secure your system with JWT tokens to ensure only authorized users can access protected routes.
+- **Error Handling**: The system includes comprehensive error handling to ensure robustness, with clear messages in case of failures.
+
+## **Contributing**
+If you'd like to contribute, please fork the repository, make your changes, and submit a pull request. Ensure to follow the existing code style and provide detailed commit messages.
 
 ## **License**
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-This README should provide a clear and detailed guide for setting up and running your project. Let me know if you need any additional changes or clarifications!
+This project is licensed under the MIT License - see the LICENSE file for details.
