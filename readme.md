@@ -1,4 +1,4 @@
-# **Adv_Rag - AI-Powered Document Q&A System**
+# **Adv_Rag**
 
 Adv_Rag is an advanced document processing and question-answering system built with various cutting-edge technologies, enabling users to upload PDF or image documents, process them, and ask questions based on the extracted content. The system uses a custom AI-powered backend, powered by Google's Gemini API, and integrates with popular Python libraries and cloud services.
 
