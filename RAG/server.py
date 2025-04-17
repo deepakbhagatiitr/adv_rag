@@ -1,3 +1,4 @@
+import pdfplumber
 import fitz
 from flask import Flask, request, jsonify
 import jwt
@@ -8,7 +9,9 @@ from gemini import upload_pdf_and_create_db, answer_question
 import os
 from google.cloud import vision
 import traceback
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/app/credentials/iprc-456620-6454ff816526.json"
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/deepak-bhagat/Downloads/iprc-456620-6454ff816526.json"
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/app/credentials/iprc-456620-6454ff816526.json"
 
 app = Flask(__name__)
 CORS(app)
@@ -106,7 +109,6 @@ def upload_pdf_or_image():
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
-import pdfplumber
 
 def extract_text_from_pdf(pdf_file):
     with pdfplumber.open(pdf_file) as pdf:
@@ -150,4 +152,5 @@ def ask():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
 

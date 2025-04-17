@@ -30,7 +30,7 @@ Adv_Rag is an advanced document processing and question-answering system built w
 #### 1. Clone the repository:
 ```bash
 git clone https://github.com/yourusername/Adv_Rag.git
-cd Adv_Rag
+cd RAG
 ```
 
 #### 2. Install the backend dependencies:
@@ -53,7 +53,7 @@ export GOOGLE_APPLICATION_CREDENTIALS="path_to_your_credentials.json"
 
 #### 5. Install the frontend dependencies:
 ```bash
-cd frontend
+cd Bot
 npm install
 ```
 

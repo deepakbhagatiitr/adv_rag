@@ -21,7 +21,7 @@ vector_storage = None
 last_uploaded_pdf_text = None
 
 
-# Mock Embedding class for testing without a real embedding model
+# Mock Embedding class 
 class MockEmbeddings(Embeddings):
     def embed_documents(self, texts):
         return [np.random.rand(512).tolist() for _ in texts]
@@ -81,25 +81,19 @@ class RetrieveAndAnswer:
         except Exception as e:
             logging.error(f"Error invoking Gemini model: {e}")
             return "Error processing request, try again.", 0
-
     def calculate_confidence(self, response_text, question):
         import re
         from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
+        from sentence_transformers import SentenceTransformer, util
 
-        def clean_and_tokenize(text):
-            text = re.sub(r'[^\w\s]', '', text.lower())
-            return [word for word in text.split() if word not in ENGLISH_STOP_WORDS]
+        model = SentenceTransformer('all-MiniLM-L6-v2')
 
-        question_words = set(clean_and_tokenize(question))
-        answer_words = set(clean_and_tokenize(response_text))
-        keyword_overlap = question_words.intersection(answer_words)
+        question_embedding = model.encode(question, convert_to_tensor=True)
+        response_embedding = model.encode(response_text, convert_to_tensor=True)
 
-        keyword_score = len(keyword_overlap) / max(len(question_words), 1)
+        similarity_score = float(util.cos_sim(question_embedding, response_embedding)[0][0])
+        semantic_boost = int(similarity_score * 100)  # Scale to 0–100
 
-        # Step 1: Calculate keyword match boost (0–70)
-        keyword_boost = int(keyword_score * 70)
-
-        # Step 2: Smarter check for irrelevant or fallback responses
         irrelevant_phrases = [
             "not contain information",
             "not contain any information",
@@ -111,25 +105,23 @@ class RetrieveAndAnswer:
             "i do not know"
         ]
 
-        # Normalize and split into clean sentences
         response_lower = response_text.strip().lower()
         response_sentences = [s.strip() for s in re.split(r'[.!?]', response_lower) if s.strip()]
 
-        contains_irrelevant = any(
+        irrelevant_count = sum(
             any(phrase in sentence for phrase in irrelevant_phrases)
             for sentence in response_sentences
         )
 
-        if keyword_score == 0 or contains_irrelevant and len(response_sentences) <= 2:
-            return 10  # Only penalize if mostly irrelevant or fallback content
+        irrelevant_ratio = irrelevant_count / max(len(response_sentences), 1)
 
-        # Step 3: Bonus for ending with punctuation
+        if similarity_score < 0.3 and irrelevant_ratio > 0.5:
+            return 10
+
         ending_bonus = 5 if response_text.strip().endswith(('.', '?')) else 0
 
-        # Final score
-        confidence = keyword_boost + ending_bonus
+        confidence = semantic_boost + ending_bonus
         return max(min(confidence, 100), 0)
-
 
 
 
@@ -150,7 +142,7 @@ def upload_pdf_and_create_db(pdf_text):
         return "Error while processing the uploaded PDF.", False
 
 
-# Answer user question using existing vector DB
+# Answer user question
 def answer_question(question):
     global vector_storage
     try:

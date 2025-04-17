@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ChatDashboard from './ChatDashboard';
+import ChatDashboard from './components/ChatDashboard';
 import axios from 'axios';
 
 const App = () => {

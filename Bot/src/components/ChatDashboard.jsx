@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FiSend } from "react-icons/fi";
 import ScrollToBottom from 'react-scroll-to-bottom';
 import axios from 'axios';
-import UploadForm from './components/UploadForm';
-import './index.css';
+import UploadForm from './UploadForm';
+import '../index.css';
 
 const ChatDashboard = ({ onLogout }) => {
     const [messages, setMessages] = useState([]);
