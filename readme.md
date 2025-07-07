@@ -84,6 +84,11 @@ The frontend will be available at `http://localhost:3000` by default, and the ba
 }
 ```
 
+Use the following credentials to log in:
+
+- **Email**: `user@example.com`  
+- **Password**: `deepak`
+
 **Response**:
 ```json
 {
